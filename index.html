@@ -1,5 +1,94 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#151126"><title>MBTI 像素人格檢測所</title><link rel="stylesheet" href="style.css"></head><body><main class="wrap"><div class="brand"><span class="logo">✦</span>PIXEL TYPE LAB</div>
-<section id="start" class="screen on"><div class="panel"><small style="color:var(--blu);font-weight:900">MBTI STYLE PERSONALITY TEST</small><h1>找出你的<br><span class="yel">像素人格角色</span></h1><p class="lead">用 24 道情境題探索能量、資訊、決策與生活節奏，完成後解鎖專屬 16 型像素人物與可下載結果卡。</p><div class="features"><div class="feature"><b>24 道情境題</b><small>四個向度平均計分</small></div><div class="feature"><b>16 款像素角色</b><small>不同配色與專屬道具</small></div><div class="feature"><b>結果卡下載</b><small>可保存 PNG 或分享</small></div></div><div class="startrow"><input id="name" maxlength="14" placeholder="輸入暱稱（可不填）"><button id="go" class="btn primary">開始測驗 ▶</button></div><p class="note">本測驗用於娛樂與自我探索，不是心理診斷；像素人物為原創設計。</p></div></section>
-<section id="quiz" class="screen"><div class="panel"><div class="head"><div><div class="tiny"><span id="pt"></span><span id="pc"></span></div><div class="bar"><div id="pf" class="fill"></div></div></div><span id="chip" class="chip"></span></div><div class="qbox"><div><div id="qn" class="qnum"></div><h2 id="qt" class="qtext"></h2></div><div><div class="labels"><span>非常不像我</span><span>非常像我</span></div><div id="answers" class="answers"></div></div></div><div class="actions"><button id="back" class="btn ghost">← 上一題</button><button id="quit" class="btn ghost">回首頁</button></div></div></section>
-<section id="result" class="screen"><div class="panel"><div class="resulttop"><div class="frame"><canvas id="avatar" width="320" height="320"></canvas></div><div><small style="color:var(--blu);font-weight:900">YOUR PIXEL PERSONALITY</small><div id="rtype" class="type"></div><h2 id="rtitle" class="title"></h2><p id="rtag" class="tag"></p><p id="rsum" class="summary"></p><div id="tags" class="tags"></div><div class="rbuttons"><button id="download" class="btn primary">下載結果卡</button><button id="share" class="btn">分享結果</button><button id="again" class="btn ghost">重新測驗</button></div></div></div><h3 class="section">四個人格向度</h3><div id="dims" class="dims"></div><h3 class="section">你的使用說明書</h3><div class="cards"><div class="card"><b>✨ 天賦</b><p id="strong"></p></div><div class="card"><b>🪞 提醒</b><p id="blind"></p></div><div class="card"><b>🧰 工作模式</b><p id="work"></p></div><div class="card"><b>💬 關係模式</b><p id="love"></p></div></div></div></section><div class="footer">非官方 MBTI 風格自我探索測驗｜角色與文字為原創</div></main><div id="toast" class="toast"></div>
-<script src="data.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#151126">
+  <title>MBTI 像素人格檢測所</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wrap">
+  <div class="brand"><span class="logo">✦</span>PIXEL TYPE LAB</div>
+
+  <section id="start" class="screen on">
+    <div class="panel">
+      <small style="color:var(--blu);font-weight:900">MBTI STYLE PERSONALITY TEST</small>
+      <h1>找出你的<br><span class="yel">像素人格角色</span></h1>
+      <p class="lead">用 24 道情境題探索能量、資訊、決策與生活節奏，完成後解鎖專屬 16 型像素人物與可下載結果卡。</p>
+      <div class="features">
+        <div class="feature"><b>24 道情境題</b><small>四個向度平均計分</small></div>
+        <div class="feature"><b>16 款像素角色</b><small>不同配色與專屬道具</small></div>
+        <div class="feature"><b>結果卡下載</b><small>可保存 PNG 或分享</small></div>
+      </div>
+      <div class="startrow">
+        <input id="name" maxlength="14" placeholder="輸入暱稱（可不填）">
+        <button id="go" class="btn primary">開始測驗 ▶</button>
+      </div>
+      <p class="note">本測驗用於娛樂與自我探索，不是心理診斷；像素人物為原創設計。</p>
+    </div>
+  </section>
+
+  <section id="quiz" class="screen">
+    <div class="panel">
+      <div class="head">
+        <div>
+          <div class="tiny"><span id="pt"></span><span id="pc"></span></div>
+          <div class="bar"><div id="pf" class="fill"></div></div>
+        </div>
+        <span id="chip" class="chip"></span>
+      </div>
+      <div class="qbox">
+        <div><div id="qn" class="qnum"></div><h2 id="qt" class="qtext"></h2></div>
+        <div>
+          <div class="labels"><span>非常不像我</span><span>非常像我</span></div>
+          <div id="answers" class="answers"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="back" class="btn ghost">← 上一題</button>
+        <button id="quit" class="btn ghost">回首頁</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen">
+    <div class="panel">
+      <div class="resulttop">
+        <div class="frame">
+          <canvas id="avatar" width="320" height="320"></canvas>
+        </div>
+        <div>
+          <small style="color:var(--blu);font-weight:900">YOUR PIXEL PERSONALITY</small>
+          <div id="rtype" class="type"></div>
+          <h2 id="rtitle" class="title"></h2>
+          <p id="rtag" class="tag"></p>
+          <p id="rsum" class="summary"></p>
+          <div id="tags" class="tags"></div>
+          <div class="rbuttons">
+            <button id="download" class="btn primary">下載結果卡</button>
+            <button id="share" class="btn">分享結果</button>
+            <button id="again" class="btn ghost">重新測驗</button>
+          </div>
+        </div>
+      </div>
+      <h3 class="section">四個人格向度</h3>
+      <div id="dims" class="dims"></div>
+      <h3 class="section">你的使用說明書</h3>
+      <div class="cards">
+        <div class="card"><b>✨ 天賦</b><p id="strong"></p></div>
+        <div class="card"><b>🪞 提醒</b><p id="blind"></p></div>
+        <div class="card"><b>🧰 工作模式</b><p id="work"></p></div>
+        <div class="card"><b>💬 關係模式</b><p id="love"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">非官方 MBTI 風格自我探索測驗｜角色與文字為原創</div>
+</main>
+<div id="toast" class="toast"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="artwork.js"></script>
+</body>
+</html>
