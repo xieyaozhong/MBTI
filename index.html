@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#151126">
   <title>MBTI 像素人格檢測所</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="identity.css">
 </head>
 <body>
 <main class="wrap">
@@ -13,19 +14,19 @@
 
   <section id="start" class="screen on">
     <div class="panel">
-      <small style="color:var(--blu);font-weight:900">MBTI STYLE PERSONALITY TEST</small>
-      <h1>找出你的<br><span class="yel">像素人格角色</span></h1>
-      <p class="lead">用 24 道情境題探索能量、資訊、決策與生活節奏，完成後解鎖專屬 16 型像素人物與可下載結果卡。</p>
+      <small class="eyebrow">5-DIMENSION PERSONALITY STYLE TEST</small>
+      <h1>找出你的<br><span class="yel">完整人格代碼</span></h1>
+      <p class="lead">用 30 道情境題探索能量、資訊、決策、生活節奏與壓力身分傾向，完成後獲得像 INTJ-A、INFP-T 這類完整結果與詳細人格說明。</p>
       <div class="features">
-        <div class="feature"><b>24 道情境題</b><small>四個向度平均計分</small></div>
-        <div class="feature"><b>16 款像素角色</b><small>不同配色與專屬道具</small></div>
-        <div class="feature"><b>結果卡下載</b><small>可保存 PNG 或分享</small></div>
+        <div class="feature"><b>30 道情境題</b><small>五個向度平均計分</small></div>
+        <div class="feature"><b>32 種完整結果</b><small>16 型人格 × A／T 後綴</small></div>
+        <div class="feature"><b>詳細人格說明</b><small>優勢、盲點、壓力與成長</small></div>
       </div>
       <div class="startrow">
         <input id="name" maxlength="14" placeholder="輸入暱稱（可不填）">
         <button id="go" class="btn primary">開始測驗 ▶</button>
       </div>
-      <p class="note">本測驗用於娛樂與自我探索，不是心理診斷；像素人物為原創設計。</p>
+      <p class="note">本測驗用於娛樂與自我探索，不是心理診斷。A／T 為常見的延伸身分傾向，用來描述面對壓力、自我評價與變動時的差異。</p>
     </div>
   </section>
 
@@ -55,15 +56,14 @@
   <section id="result" class="screen">
     <div class="panel">
       <div class="resulttop">
-        <div class="frame">
-          <canvas id="avatar" width="320" height="320"></canvas>
-        </div>
+        <div class="frame"><canvas id="avatar" width="320" height="320"></canvas></div>
         <div>
-          <small style="color:var(--blu);font-weight:900">YOUR PIXEL PERSONALITY</small>
+          <small class="eyebrow">YOUR COMPLETE PERSONALITY</small>
           <div id="rtype" class="type"></div>
           <h2 id="rtitle" class="title"></h2>
           <p id="rtag" class="tag"></p>
           <p id="rsum" class="summary"></p>
+          <div id="identity" class="identity"></div>
           <div id="tags" class="tags"></div>
           <div class="rbuttons">
             <button id="download" class="btn primary">下載結果卡</button>
@@ -72,23 +72,31 @@
           </div>
         </div>
       </div>
-      <h3 class="section">四個人格向度</h3>
+
+      <h3 class="section">五個人格向度</h3>
       <div id="dims" class="dims"></div>
-      <h3 class="section">你的使用說明書</h3>
-      <div class="cards">
-        <div class="card"><b>✨ 天賦</b><p id="strong"></p></div>
-        <div class="card"><b>🪞 提醒</b><p id="blind"></p></div>
-        <div class="card"><b>🧰 工作模式</b><p id="work"></p></div>
-        <div class="card"><b>💬 關係模式</b><p id="love"></p></div>
+
+      <h3 class="section">你的完整人格說明</h3>
+      <div class="cards detail-cards">
+        <div class="card wide"><b>🧭 人格全貌</b><p id="overview"></p></div>
+        <div class="card"><b>✨ 核心優勢</b><p id="strong"></p></div>
+        <div class="card"><b>🪞 可能盲點</b><p id="blind"></p></div>
+        <div class="card"><b>🧰 工作與學習</b><p id="work"></p></div>
+        <div class="card"><b>💬 關係與溝通</b><p id="love"></p></div>
+        <div class="card"><b>🌩️ 壓力反應</b><p id="stress"></p></div>
+        <div class="card"><b>🌱 成長建議</b><p id="growth"></p></div>
       </div>
     </div>
   </section>
 
-  <div class="footer">非官方 MBTI 風格自我探索測驗｜角色與文字為原創</div>
+  <div class="footer">非官方 MBTI 風格自我探索測驗｜A／T 為延伸身分向度｜角色與文字為原創</div>
 </main>
 <div id="toast" class="toast"></div>
 <script src="data.js"></script>
+<script src="identity-data.js"></script>
 <script src="app.js"></script>
+<script src="identity-enhance.js"></script>
 <script src="artwork.js"></script>
+<script src="identity-card.js"></script>
 </body>
 </html>
