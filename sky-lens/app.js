@@ -35,6 +35,7 @@ const state = {
   magnitudeLimit: 5,
   deferredInstall: null,
   usingAbsoluteEvent: false,
+  dpr: 1,
 };
 
 const kindNames = {
@@ -57,41 +58,56 @@ function setPermission(id, ok, text) {
 }
 
 function resizeCanvas() {
-  const dpr = Math.min(devicePixelRatio || 1, 2);
+  state.dpr = Math.min(devicePixelRatio || 1, 2);
   const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.round(rect.width * dpr);
-  canvas.height = Math.round(rect.height * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  canvas.width = Math.max(1, Math.round(rect.width * state.dpr));
+  canvas.height = Math.max(1, Math.round(rect.height * state.dpr));
+  ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+}
+function clearOverlay() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
 }
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(() => { resizeCanvas(); updateCameraBasis(); }, 180));
 resizeCanvas();
 
-function rotateX(v, angle) {
-  const c = Math.cos(angle), s = Math.sin(angle);
-  return { x: v.x, y: v.y * c - v.z * s, z: v.y * s + v.z * c };
-}
-function rotateY(v, angle) {
-  const c = Math.cos(angle), s = Math.sin(angle);
-  return { x: v.x * c + v.z * s, y: v.y, z: -v.x * s + v.z * c };
-}
-function rotateZ(v, angle) {
-  const c = Math.cos(angle), s = Math.sin(angle);
-  return { x: v.x * c - v.y * s, y: v.x * s + v.y * c, z: v.z };
-}
 function deviceVectorToWorld(v, headingDeg, betaDeg, gammaDeg) {
   const rad = Math.PI / 180;
-  let r = rotateY(v, gammaDeg * rad);
-  r = rotateX(r, betaDeg * rad);
-  r = rotateZ(r, -(headingDeg + state.headingOffset) * rad);
-  return { east: r.x, north: r.y, up: r.z };
+  const alpha = normalizeDegrees(360 - (headingDeg + state.headingOffset)) * rad;
+  const beta = betaDeg * rad;
+  const gamma = gammaDeg * rad;
+  const cA = Math.cos(alpha), sA = Math.sin(alpha);
+  const cB = Math.cos(beta), sB = Math.sin(beta);
+  const cG = Math.cos(gamma), sG = Math.sin(gamma);
+
+  const m11 = cA * cG - sA * sB * sG;
+  const m12 = -cB * sA;
+  const m13 = cG * sA * sB + cA * sG;
+  const m21 = cG * sA + cA * sB * sG;
+  const m22 = cA * cB;
+  const m23 = sA * sG - cA * cG * sB;
+  const m31 = -cB * sG;
+  const m32 = sB;
+  const m33 = cB * cG;
+
+  return {
+    east: m11 * v.x + m12 * v.y + m13 * v.z,
+    north: m21 * v.x + m22 * v.y + m23 * v.z,
+    up: m31 * v.x + m32 * v.y + m33 * v.z,
+  };
 }
 function updateCameraBasis() {
   const o = state.orientation;
   if (!o) return;
+  const screenAngle = Number(screen.orientation?.angle ?? window.orientation ?? 0) * Math.PI / 180;
+  const screenRight = { x: Math.cos(screenAngle), y: Math.sin(screenAngle), z: 0 };
+  const screenUp = { x: -Math.sin(screenAngle), y: Math.cos(screenAngle), z: 0 };
   state.cameraBasis = {
     forward: deviceVectorToWorld({x:0,y:0,z:-1}, o.heading, o.beta, o.gamma),
-    right: deviceVectorToWorld({x:1,y:0,z:0}, o.heading, o.beta, o.gamma),
-    up: deviceVectorToWorld({x:0,y:1,z:0}, o.heading, o.beta, o.gamma),
+    right: deviceVectorToWorld(screenRight, o.heading, o.beta, o.gamma),
+    up: deviceVectorToWorld(screenUp, o.heading, o.beta, o.gamma),
   };
 }
 
@@ -240,7 +256,7 @@ function objectGlyph(kind) {
 
 function render() {
   const width = canvas.clientWidth, height = canvas.clientHeight;
-  ctx.clearRect(0, 0, width, height);
+  clearOverlay();
 
   const basis = state.cameraBasis;
   if (!state.observer || !basis) {
@@ -262,7 +278,7 @@ function render() {
     if (horizontal.altitudeDeg < -7) continue;
     const world = horizontalToWorldVector(horizontal.altitudeDeg, horizontal.azimuthDeg);
     const point = projectWorldToScreen(world, basis.right, basis.up, basis.forward, width, height, state.fov);
-    if (!point || point.x < -60 || point.x > width + 60 || point.y < -60 || point.y > height + 60) continue;
+    if (!point || point.depth < 0.14 || point.x < -24 || point.x > width + 24 || point.y < -24 || point.y > height + 24) continue;
     const entry = { object, point, ...horizontal };
     visible.push(entry);
     pointById.set(object.id, point);
@@ -283,13 +299,30 @@ function render() {
   }
 
   ctx.textBaseline = 'middle';
+  const labelBoxes = [];
+  const onlineLabels = new Set(
+    visible
+      .filter(entry => entry.object.source === 'simbad' && entry.object.kind !== 'star')
+      .sort((a, b) => b.point.depth - a.point.depth)
+      .slice(0, 10)
+      .map(entry => entry.object.id)
+  );
+  let labelCount = 0;
+  const overlaps = box => labelBoxes.some(other => !(box.x2 < other.x1 || box.x1 > other.x2 || box.y2 < other.y1 || box.y1 > other.y2));
+
+  visible.sort((a, b) => {
+    const aRank = a.object.kind === 'star' ? (a.object.magnitude ?? 9) : -2;
+    const bRank = b.object.kind === 'star' ? (b.object.magnitude ?? 9) : -2;
+    return aRank - bRank;
+  });
+
   for (const entry of visible) {
     const { object, point } = entry;
     const radius = magnitudeRadius(object);
     const color = objectColor(object.kind);
     ctx.save();
     ctx.shadowColor = color;
-    ctx.shadowBlur = object.kind === 'star' ? 9 : 13;
+    ctx.shadowBlur = object.kind === 'star' ? 8 : 11;
     ctx.fillStyle = color;
     if (object.kind === 'star') {
       ctx.beginPath(); ctx.arc(point.x, point.y, radius, 0, Math.PI * 2); ctx.fill();
@@ -299,15 +332,23 @@ function render() {
     }
     ctx.restore();
 
-    const shouldLabel = object.kind !== 'star' || (object.magnitude ?? 99) <= 2.3 || object.source === 'simbad';
-    if (shouldLabel) {
+    const localLabel = object.source !== 'simbad' && (object.kind !== 'star' || (object.magnitude ?? 99) <= 1.9);
+    const onlineLabel = onlineLabels.has(object.id);
+    if ((localLabel || onlineLabel) && labelCount < 22) {
       const label = object.nameZh || object.name;
-      ctx.font = object.source === 'simbad' ? '10px system-ui' : '600 11px system-ui';
+      ctx.font = onlineLabel ? '10px system-ui' : '600 11px system-ui';
       const tw = ctx.measureText(label).width;
-      ctx.fillStyle = 'rgba(2, 9, 17, .62)';
-      ctx.fillRect(point.x + 8, point.y - 9, tw + 9, 18);
-      ctx.fillStyle = object.source === 'simbad' ? '#b8d0df' : '#eff9ff';
-      ctx.fillText(label, point.x + 12, point.y);
+      const x = Math.min(width - tw - 14, Math.max(4, point.x + 9));
+      const y = Math.min(height - 11, Math.max(11, point.y));
+      const box = { x1: x - 3, y1: y - 10, x2: x + tw + 8, y2: y + 10 };
+      if (!overlaps(box)) {
+        labelBoxes.push(box);
+        labelCount += 1;
+        ctx.fillStyle = 'rgba(2, 9, 17, .72)';
+        ctx.fillRect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
+        ctx.fillStyle = onlineLabel ? '#b8d0df' : '#eff9ff';
+        ctx.fillText(label, x + 1, y);
+      }
     }
   }
   state.visible = visible;
@@ -373,7 +414,7 @@ $('#onlineButton').addEventListener('click', async () => {
   try {
     const center = worldVectorToHorizontal(state.cameraBasis.forward);
     const eq = horizontalToEquatorial(center.altitudeDeg, center.azimuthDeg, state.observer, new Date());
-    state.onlineObjects = await querySimbadCone(eq.raHours, eq.decDeg, 4, 180);
+    state.onlineObjects = await querySimbadCone(eq.raHours, eq.decDeg, 4, 100);
     $('#onlineText').textContent = state.onlineObjects.length;
     button.classList.add('active');
     showToast(`已載入目前方向附近 ${state.onlineObjects.length} 個 SIMBAD 天體`, 3600);
