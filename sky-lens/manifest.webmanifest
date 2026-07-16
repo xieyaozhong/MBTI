@@ -1,0 +1,22 @@
+{
+  "id": "./",
+  "name": "Sky Lens 星空鏡",
+  "short_name": "Sky Lens",
+  "description": "把手機對準天空，即時顯示星星、星座、星系與星雲位置。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "categories": ["education", "utilities"],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
