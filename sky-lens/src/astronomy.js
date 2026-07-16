@@ -37,7 +37,7 @@ export const horizontalToEquatorial = (altitudeDeg, azimuthDeg, observer, date) 
 };
 const dotWorld = (a, b) => a.east * b.east + a.north * b.north + a.up * b.up;
 export const projectWorldToScreen = (target, cameraRight, cameraUp, cameraForward, width, height, verticalFovDeg) => {
-  const depth = dotWorld(target, cameraForward); if (depth <= 0.02) return null;
+  const depth = dotWorld(target, cameraForward); if (depth <= 0.12) return null;
   const cameraX = dotWorld(target, cameraRight), cameraY = dotWorld(target, cameraUp);
   const focalLength = height / (2 * Math.tan(degToRad(verticalFovDeg) / 2));
   return { x: width / 2 + (cameraX / depth) * focalLength, y: height / 2 - (cameraY / depth) * focalLength, depth };
