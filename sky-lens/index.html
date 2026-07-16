@@ -8,49 +8,71 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Sky Lens" />
-  <meta name="description" content="用手機相機對準天空，即時顯示星星、星座、星系與星雲位置。" />
+  <meta name="description" content="用手機相機對準天空，即時顯示並導航星座、行星、月亮、星系與星雲。" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon.svg" />
   <link rel="icon" href="./icon.svg" />
-  <link rel="stylesheet" href="./styles.css?v=1.2.0" />
+  <link rel="stylesheet" href="./styles-v1.3.css?v=1.3.0" />
   <title>Sky Lens 星空鏡</title>
 </head>
 <body>
   <video id="camera" playsinline muted autoplay></video>
   <div id="fallbackSky" aria-hidden="true"></div>
   <canvas id="overlay"></canvas>
+
   <header class="top-hud">
     <div class="brand"><div class="brand-mark">✦</div><div><strong>Sky Lens</strong><span id="clock">--:--:--</span></div></div>
-    <button id="settingsButton" class="icon-button" aria-label="開啟設定">⚙</button>
+    <div class="header-actions"><button id="searchButton" class="icon-button" aria-label="尋找星座">⌕</button><button id="settingsButton" class="icon-button" aria-label="開啟設定">⚙</button></div>
   </header>
+
   <div id="compass" class="compass">方向 --°　高度 --°</div>
   <div class="crosshair" aria-hidden="true"><i></i><b></b></div>
+  <div id="targetMarker" class="target-marker hidden" aria-hidden="true"><i></i></div>
+
+  <section id="navigationHud" class="navigation-hud glass hidden">
+    <button id="cancelNavigation" class="nav-close" aria-label="停止導航">×</button>
+    <div id="navigationArrow" class="navigation-arrow">↑</div>
+    <div class="navigation-copy"><small>正在尋找</small><strong id="navigationName">獵戶座</strong><span id="navigationHint">向右轉動手機</span></div>
+    <b id="navigationDistance" class="navigation-distance">--°</b>
+  </section>
+
   <section id="startPanel" class="start-panel glass">
     <div class="hero-icon">✦</div><h1>把手機對準天空</h1>
-    <p>相機畫面會疊上目前時間與所在地可見的星體、星座線及深空天體。</p>
+    <p>相機畫面會疊上目前時間與所在地可見的星座、太陽、月亮、行星與深空天體。</p>
     <button id="startButton" class="primary-button">啟動星空</button>
     <div class="permission-list"><span id="cameraStatus">○ 相機</span><span id="locationStatus">○ 定位</span><span id="motionStatus">○ 方向感測</span></div>
     <small>iPhone 會依序詢問方向、相機與定位；任何一步失敗仍會進入星圖。</small>
   </section>
+
   <div id="toast" class="toast" role="status"></div>
   <section id="objectCard" class="object-card glass hidden" aria-live="polite">
     <button id="closeObjectCard" class="card-close" aria-label="關閉">×</button><div id="objectKind" class="object-kind">恆星</div>
     <h2 id="objectName">天狼星</h2><p id="objectEnglish">Sirius</p>
     <div class="object-grid"><span>方位角<strong id="objectAz">--°</strong></span><span>高度角<strong id="objectAlt">--°</strong></span><span>赤經<strong id="objectRa">--</strong></span><span>赤緯<strong id="objectDec">--</strong></span></div>
   </section>
+
   <nav class="toolbar glass" aria-label="顯示控制">
-    <button class="tool active" data-toggle="stars"><span>✦</span>恆星</button><button class="tool active" data-toggle="constellations"><span>⌁</span>星座</button><button class="tool active" data-toggle="deepSky"><span>◎</span>深空</button><button id="onlineButton" class="tool"><span>⌕</span>星表</button>
+    <button class="tool active" data-toggle="stars"><span>✦</span>恆星</button><button class="tool active" data-toggle="constellations"><span>⌁</span>星座</button><button class="tool active" data-toggle="solarSystem"><span>☉</span>太陽系</button><button class="tool active" data-toggle="deepSky"><span>◎</span>深空</button><button id="onlineButton" class="tool"><span>⌕</span>星表</button>
   </nav>
+
+  <aside id="searchPanel" class="search-panel glass hidden">
+    <div class="settings-title"><div><small>導航功能</small><h2>尋找星座或行星</h2></div><button id="closeSearch" class="icon-button">×</button></div>
+    <form id="searchForm" class="search-form"><input id="searchInput" type="search" inputmode="search" autocomplete="off" placeholder="例如：獵戶座、北斗七星、木星、月亮" /><button type="submit">尋找</button></form>
+    <div id="searchResults" class="search-results"></div>
+    <p class="search-note">選擇後，箭頭會依照手機目前朝向持續提示左右與上下方向。</p>
+  </aside>
+
   <aside id="settingsPanel" class="settings-panel glass hidden">
     <div class="settings-title"><h2>顯示與校正</h2><button id="closeSettings" class="icon-button">×</button></div>
     <label>相機視野 <output id="fovOutput">55°</output><input id="fovRange" type="range" min="35" max="85" value="55" step="1" /></label>
     <label>水平校正 <output id="headingOutput">0°</output><input id="headingRange" type="range" min="-90" max="90" value="0" step="1" /></label>
     <label>星等上限 <output id="magnitudeOutput">5.0</output><input id="magnitudeRange" type="range" min="1" max="9" value="5" step="0.5" /></label>
     <button id="resetCalibration" class="secondary-button">重設校正</button><button id="installButton" class="secondary-button hidden">安裝到主畫面</button>
-    <div class="sensor-info"><span>位置</span><strong id="positionText">尚未取得</strong><span>羅盤來源</span><strong id="sensorText">尚未啟動</strong><span>離線天體</span><strong id="catalogText">--</strong><span>線上天體</span><strong id="onlineText">0</strong></div>
-    <p class="ios-note">iPhone：Safari 分享按鈕 →「加入主畫面」，即可像 App 一樣開啟。</p>
+    <div class="sensor-info"><span>位置</span><strong id="positionText">尚未取得</strong><span>羅盤來源</span><strong id="sensorText">尚未啟動</strong><span>離線天體</span><strong id="catalogText">--</strong><span>星座導航</span><strong id="constellationText">--</strong><span>線上天體</span><strong id="onlineText">0</strong></div>
+    <p class="ios-note">行星、太陽與月亮採離線低精度天文算法即時計算，適合肉眼尋星與方向指引。請勿長時間直視太陽。</p>
   </aside>
+
   <div id="rotateNotice" class="rotate-notice">請將手機直立使用，星圖對位會較準確。</div>
-  <script type="module" src="./app.js?v=1.2.0"></script>
+  <script type="module" src="./app-v1.3.js?v=1.3.0"></script>
 </body>
 </html>
