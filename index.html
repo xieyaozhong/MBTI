@@ -5,28 +5,35 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#151126">
   <title>MBTI 像素人格檢測所</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260716-i18n">
   <link rel="stylesheet" href="identity.css">
 </head>
 <body>
 <main class="wrap">
-  <div class="brand"><span class="logo">✦</span>PIXEL TYPE LAB</div>
+  <div class="topbar">
+    <div class="brand"><span class="logo">✦</span>PIXEL TYPE LAB</div>
+    <div class="lang-switch" aria-label="Language">
+      <button type="button" class="lang-btn" data-lang="zh" aria-pressed="true">中文</button>
+      <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" class="lang-btn" data-lang="th" aria-pressed="false">ไทย</button>
+    </div>
+  </div>
 
   <section id="start" class="screen on">
     <div class="panel">
-      <small class="eyebrow">5-DIMENSION PERSONALITY STYLE TEST</small>
-      <h1>找出你的<br><span class="yel">完整人格代碼</span></h1>
-      <p class="lead">用 30 道日常生活情境題，探索你在人際互動、接收資訊、做決定、安排行程與面對壓力時最自然的反應。</p>
+      <small class="eyebrow" data-i18n="heroEyebrow">5 維人格風格測驗</small>
+      <h1 data-i18n-html="heroTitle">找出你的<br><span class="yel">完整人格代碼</span></h1>
+      <p class="lead" data-i18n="lead">用 30 道日常生活情境題，探索你在人際互動、接收資訊、做決定、安排行程與面對壓力時最自然的反應。</p>
       <div class="features">
-        <div class="feature"><b>30 道生活情境</b><small>依照真實反應作答</small></div>
-        <div class="feature"><b>32 種完整結果</b><small>16 型人格 × A／T 後綴</small></div>
-        <div class="feature"><b>詳細人格說明</b><small>優勢、盲點、壓力與成長</small></div>
+        <div class="feature"><b data-i18n="feature1Title">30 道生活情境</b><small data-i18n="feature1Sub">依照真實反應作答</small></div>
+        <div class="feature"><b data-i18n="feature2Title">32 種完整結果</b><small data-i18n="feature2Sub">16 型人格 × A／T 後綴</small></div>
+        <div class="feature"><b data-i18n="feature3Title">詳細人格說明</b><small data-i18n="feature3Sub">優勢、盲點、壓力與成長</small></div>
       </div>
       <div class="startrow">
-        <input id="name" maxlength="14" placeholder="輸入暱稱（可不填）">
-        <button id="go" class="btn primary">開始測驗 ▶</button>
+        <input id="name" maxlength="24" data-i18n-placeholder="namePlaceholder" placeholder="輸入暱稱（可不填）">
+        <button id="go" class="btn primary" data-i18n="startButton">開始測驗 ▶</button>
       </div>
-      <p class="note">請選擇你平常最可能出現的反應，而不是你認為自己應該怎麼做。本測驗用於娛樂與自我探索，不是心理診斷。</p>
+      <p class="note" data-i18n="startNote">請選擇你平常最可能出現的反應，而不是你認為自己應該怎麼做。本測驗用於娛樂與自我探索，不是心理診斷。</p>
     </div>
   </section>
 
@@ -42,14 +49,14 @@
       <div class="qbox">
         <div><div id="qn" class="qnum"></div><h2 id="qt" class="qtext"></h2></div>
         <div>
-          <div class="labels"><span>非常不像我</span><span>非常像我</span></div>
+          <div class="labels"><span data-i18n="veryUnlike">非常不像我</span><span data-i18n="veryLike">非常像我</span></div>
           <div id="answers" class="answers"></div>
-          <p class="note">依照你實際最常出現的反應作答。</p>
+          <p class="note" data-i18n="quizNote">依照你實際最常出現的反應作答。</p>
         </div>
       </div>
       <div class="actions">
-        <button id="back" class="btn ghost">← 上一題</button>
-        <button id="quit" class="btn ghost">回首頁</button>
+        <button id="back" class="btn ghost" data-i18n="back">← 上一題</button>
+        <button id="quit" class="btn ghost" data-i18n="home">回首頁</button>
       </div>
     </div>
   </section>
@@ -59,7 +66,7 @@
       <div class="resulttop">
         <div class="frame"><canvas id="avatar" width="320" height="320"></canvas></div>
         <div>
-          <small class="eyebrow">YOUR COMPLETE PERSONALITY</small>
+          <small class="eyebrow" data-i18n="resultEyebrow">你的完整人格</small>
           <div id="rtype" class="type"></div>
           <h2 id="rtitle" class="title"></h2>
           <p id="rtag" class="tag"></p>
@@ -67,37 +74,43 @@
           <div id="identity" class="identity"></div>
           <div id="tags" class="tags"></div>
           <div class="rbuttons">
-            <button id="download" class="btn primary">下載結果卡</button>
-            <button id="share" class="btn">分享結果</button>
-            <button id="again" class="btn ghost">重新測驗</button>
+            <button id="download" class="btn primary" data-i18n="download">下載結果卡</button>
+            <button id="share" class="btn" data-i18n="share">分享結果</button>
+            <button id="again" class="btn ghost" data-i18n="again">重新測驗</button>
           </div>
         </div>
       </div>
 
-      <h3 class="section">五個人格向度</h3>
+      <h3 class="section" data-i18n="dimensionsHeading">五個人格向度</h3>
       <div id="dims" class="dims"></div>
 
-      <h3 class="section">你的完整人格說明</h3>
+      <h3 class="section" data-i18n="detailsHeading">你的完整人格說明</h3>
       <div class="cards detail-cards">
-        <div class="card wide"><b>🧭 人格全貌</b><p id="overview"></p></div>
-        <div class="card"><b>✨ 核心優勢</b><p id="strong"></p></div>
-        <div class="card"><b>🪞 可能盲點</b><p id="blind"></p></div>
-        <div class="card"><b>🧰 工作與學習</b><p id="work"></p></div>
-        <div class="card"><b>💬 關係與溝通</b><p id="love"></p></div>
-        <div class="card"><b>🌩️ 壓力反應</b><p id="stress"></p></div>
-        <div class="card"><b>🌱 成長建議</b><p id="growth"></p></div>
+        <div class="card wide"><b data-i18n="overviewHeading">🧭 人格全貌</b><p id="overview"></p></div>
+        <div class="card"><b data-i18n="strongHeading">✨ 核心優勢</b><p id="strong"></p></div>
+        <div class="card"><b data-i18n="blindHeading">🪞 可能盲點</b><p id="blind"></p></div>
+        <div class="card"><b data-i18n="workHeading">🧰 工作與學習</b><p id="work"></p></div>
+        <div class="card"><b data-i18n="loveHeading">💬 關係與溝通</b><p id="love"></p></div>
+        <div class="card"><b data-i18n="stressHeading">🌩️ 壓力反應</b><p id="stress"></p></div>
+        <div class="card"><b data-i18n="growthHeading">🌱 成長建議</b><p id="growth"></p></div>
       </div>
     </div>
   </section>
 
-  <div class="footer">非官方 MBTI 風格自我探索測驗｜A／T 為延伸身分向度｜角色與文字為原創</div>
+  <div class="footer" data-i18n="footer">非官方 MBTI 風格自我探索測驗｜A／T 為延伸身分向度｜角色與文字為原創</div>
 </main>
 <div id="toast" class="toast"></div>
 <script src="data.js?v=20260716-daily"></script>
 <script src="identity-data.js?v=20260716-daily"></script>
-<script src="app.js"></script>
-<script src="identity-enhance.js"></script>
+<script src="i18n-ui.js?v=20260716-i18n"></script>
+<script src="i18n-questions.js?v=20260716-i18n"></script>
+<script src="i18n-en.js?v=20260716-i18n"></script>
+<script src="i18n-th-people.js?v=20260716-i18n"></script>
+<script src="i18n-th-details.js?v=20260716-i18n"></script>
+<script src="i18n.js?v=20260716-i18n"></script>
+<script src="app.js?v=20260716-i18n"></script>
+<script src="identity-enhance.js?v=20260716-i18n"></script>
 <script src="artwork.js?v=20260714-pixel"></script>
-<script src="identity-card.js"></script>
+<script src="identity-card.js?v=20260716-i18n"></script>
 </body>
 </html>
