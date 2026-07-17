@@ -13,6 +13,7 @@
   <link rel="apple-touch-icon" href="./icon.svg" />
   <link rel="icon" href="./icon.svg" />
   <link rel="stylesheet" href="./styles-v1.3.css?v=1.3.0" />
+  <link rel="stylesheet" href="./enhancements-v1.4.css?v=1.4.0" />
   <title>Sky Lens 星空鏡</title>
 </head>
 <body>
@@ -59,7 +60,7 @@
     <div class="settings-title"><div><small>導航功能</small><h2>尋找星座或行星</h2></div><button id="closeSearch" class="icon-button">×</button></div>
     <form id="searchForm" class="search-form"><input id="searchInput" type="search" inputmode="search" autocomplete="off" placeholder="例如：獵戶座、北斗七星、木星、月亮" /><button type="submit">尋找</button></form>
     <div id="searchResults" class="search-results"></div>
-    <p class="search-note">選擇後，箭頭會依照手機目前朝向持續提示左右與上下方向。</p>
+    <p class="search-note">箭頭會持續提示方向；對準目標並穩定停留後會自動停止。地平線下的星座會顯示地下角度與虛線標記。</p>
   </aside>
 
   <aside id="settingsPanel" class="settings-panel glass hidden">
@@ -69,10 +70,11 @@
     <label>星等上限 <output id="magnitudeOutput">5.0</output><input id="magnitudeRange" type="range" min="1" max="9" value="5" step="0.5" /></label>
     <button id="resetCalibration" class="secondary-button">重設校正</button><button id="installButton" class="secondary-button hidden">安裝到主畫面</button>
     <div class="sensor-info"><span>位置</span><strong id="positionText">尚未取得</strong><span>羅盤來源</span><strong id="sensorText">尚未啟動</strong><span>離線天體</span><strong id="catalogText">--</strong><span>星座導航</span><strong id="constellationText">--</strong><span>線上天體</span><strong id="onlineText">0</strong></div>
-    <p class="ios-note">行星、太陽與月亮採離線低精度天文算法即時計算，適合肉眼尋星與方向指引。請勿長時間直視太陽。</p>
+    <p class="ios-note">黃道十二星座以黃色光暈標示；地平線以下會以虛線地下標記顯示。請勿長時間直視太陽。</p>
   </aside>
 
   <div id="rotateNotice" class="rotate-notice">請將手機直立使用，星圖對位會較準確。</div>
   <script type="module" src="./app-v1.3.js?v=1.3.0"></script>
+  <script type="module" src="./enhancements-v1.4.js?v=1.4.0"></script>
 </body>
 </html>
