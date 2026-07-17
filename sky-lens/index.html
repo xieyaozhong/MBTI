@@ -9,11 +9,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Sky Lens" />
   <meta name="description" content="用手機相機對準天空，即時顯示並導航星座、行星、月亮、星系與星雲。" />
+  <script src="./performance-preload-v1.6.js?v=1.6.0"></script>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="apple-touch-icon" href="./icon.svg" />
   <link rel="icon" href="./icon.svg" />
   <link rel="stylesheet" href="./styles-v1.3.css?v=1.3.0" />
   <link rel="stylesheet" href="./enhancements-v1.4.css?v=1.4.0" />
+  <link rel="stylesheet" href="./performance-v1.6.css?v=1.6.0" />
   <title>Sky Lens 星空鏡</title>
 </head>
 <body>
@@ -72,13 +74,13 @@
     <button id="checkUpdateButton" class="secondary-button">檢查更新</button>
     <button id="repairAppButton" class="secondary-button">修復離線快取</button>
     <button id="installButton" class="secondary-button hidden">安裝到主畫面</button>
-    <div class="sensor-info"><span>位置</span><strong id="positionText">尚未取得</strong><span>羅盤來源</span><strong id="sensorText">尚未啟動</strong><span>離線天體</span><strong id="catalogText">--</strong><span>星座導航</span><strong id="constellationText">--</strong><span>線上天體</span><strong id="onlineText">0</strong><span>應用程式</span><strong id="appVersionText">v1.5.0 · 修正版</strong></div>
-    <p class="ios-note">黃道十二星座以黃色光暈標示；地平線以下會以虛線地下標記顯示。已安裝的 PWA 會在開啟與回到前景時自動同步更新。</p>
+    <div class="sensor-info"><span>位置</span><strong id="positionText">尚未取得</strong><span>羅盤來源</span><strong id="sensorText">尚未啟動</strong><span>離線天體</span><strong id="catalogText">--</strong><span>星座導航</span><strong id="constellationText">--</strong><span>線上天體</span><strong id="onlineText">0</strong><span>應用程式</span><strong id="appVersionText">v1.6.0 · 效能修正版</strong></div>
+    <p class="ios-note">效能模式限制星圖為 30 FPS、黃道特效為 10 FPS，並降低相機解析度以避免 iPhone 過熱與卡頓。</p>
   </aside>
 
   <div id="rotateNotice" class="rotate-notice">請將手機直立使用，星圖對位會較準確。</div>
-  <script type="module" src="./app-v1.3.js?v=1.3.0"></script>
-  <script type="module" src="./enhancements-v1.4.js?v=1.4.0"></script>
-  <script type="module" src="./update-manager.js?v=1.5.0-hotfix1"></script>
+  <script type="module" src="./app-v1.3.js?v=1.6.0"></script>
+  <script type="module" src="./features-v1.6.js?v=1.6.0"></script>
+  <script type="module" src="./update-manager.js?v=1.6.0"></script>
 </body>
 </html>
