@@ -1,4 +1,4 @@
-const CACHE='sky-lens-pwa-v1.4.1';
+const CACHE='sky-lens-pwa-v1.4.2';
 const ASSETS=['./','./index.html','./styles-v1.3.css','./app-v1.3.js','./enhancements-v1.4.css','./enhancements-v1.4.js','./manifest.webmanifest','./icon.svg','./src/astronomy.js','./src/catalog.js','./src/simbad.js','./src/constellations.js','./src/solar-system.js'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
