@@ -1,4 +1,4 @@
-const APP_VERSION = '1.6.1';
+const APP_VERSION = '1.7.0';
 const CHECK_INTERVAL_MS = 10 * 60 * 1000;
 const RELOAD_GUARD = 'sky-lens-controller-reload';
 
@@ -30,7 +30,7 @@ function timeout(promise, ms, message) {
 function activateWorker(worker) {
   if (!worker || activating) return;
   activating = true;
-  notify('效能修正版已下載，正在安全切換…', 5000);
+  notify('新版已下載，正在安全切換…', 5000);
   worker.postMessage({ type: 'SKIP_WAITING' });
 }
 
@@ -72,7 +72,7 @@ async function checkForUpdate({ manual = false } = {}) {
       return;
     }
 
-    setVersionText(`v${APP_VERSION} · 效能模式正常`);
+    setVersionText(`v${APP_VERSION} · 自動更新正常`);
     if (manual) notify(`目前已是最新版 v${APP_VERSION}`);
   } catch (error) {
     setVersionText(`v${APP_VERSION} · 離線可用`);
@@ -120,7 +120,7 @@ async function initializeUpdates() {
   if (registration.waiting) activateWorker(registration.waiting);
 
   setTimeout(() => sessionStorage.removeItem(RELOAD_GUARD), 5000);
-  setVersionText(`v${APP_VERSION} · 效能模式正常`);
+  setVersionText(`v${APP_VERSION} · 自動更新正常`);
   setTimeout(() => checkForUpdate(), 1200);
   setInterval(() => checkForUpdate(), CHECK_INTERVAL_MS);
 }
