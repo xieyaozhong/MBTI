@@ -55,8 +55,7 @@ async function checkForUpdate({ manual = false } = {}) {
       return;
     }
 
-    const installed = localStorage.getItem(VERSION_KEY);
-    if (remote.version !== APP_VERSION || (installed && installed !== remote.version)) {
+    if (remote.version !== APP_VERSION) {
       updateInProgress = true;
       notify(`正在套用 v${remote.version}…`, 5000);
       setTimeout(() => location.reload(), 900);
