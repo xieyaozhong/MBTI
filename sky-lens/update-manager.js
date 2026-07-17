@@ -1,13 +1,10 @@
 const APP_VERSION = '1.5.0';
-const VERSION_URL = './version.json';
-const CHECK_INTERVAL_MS = 5 * 60 * 1000;
-const RELOAD_GUARD = 'sky-lens-update-reloading';
-const VERSION_KEY = 'sky-lens-installed-version';
+const CHECK_INTERVAL_MS = 10 * 60 * 1000;
+const RELOAD_GUARD = 'sky-lens-controller-reload';
 
 let registration = null;
-let refreshing = false;
-let updateInProgress = false;
-let hadController = Boolean(navigator.serviceWorker?.controller);
+let checking = false;
+let activating = false;
 
 function notify(message, duration = 3200) {
   const toast = document.querySelector('#toast');
@@ -23,84 +20,95 @@ function setVersionText(text) {
   if (element) element.textContent = text;
 }
 
-function activateWaitingWorker(worker) {
-  if (!worker) return;
-  updateInProgress = true;
-  notify('發現新版本，正在同步更新…', 5000);
+function timeout(promise, ms, message) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ]);
+}
+
+function activateWorker(worker) {
+  if (!worker || activating) return;
+  activating = true;
+  notify('新版已下載，正在安全切換…', 5000);
   worker.postMessage({ type: 'SKIP_WAITING' });
 }
 
-async function fetchRemoteVersion() {
-  const response = await fetch(`${VERSION_URL}?t=${Date.now()}`, {
-    cache: 'no-store',
-    headers: { 'Cache-Control': 'no-cache' },
+function watchWorker(worker) {
+  if (!worker) return;
+  worker.addEventListener('statechange', () => {
+    if (worker.state === 'installed') {
+      if (navigator.serviceWorker.controller) activateWorker(registration?.waiting || worker);
+      else setVersionText(`v${APP_VERSION} · 已可離線使用`);
+    }
+    if (worker.state === 'redundant') {
+      activating = false;
+      setVersionText(`v${APP_VERSION} · 更新稍後重試`);
+    }
   });
-  if (!response.ok) throw new Error(`版本檢查失敗（${response.status}）`);
-  return response.json();
 }
 
 async function checkForUpdate({ manual = false } = {}) {
-  if (!registration || updateInProgress || !navigator.onLine) {
-    if (manual && !navigator.onLine) notify('目前離線，恢復網路後會自動檢查更新。');
+  if (!registration || checking || activating) return;
+  if (!navigator.onLine) {
+    if (manual) notify('目前離線；連線後會自動檢查更新。');
     return;
   }
 
+  checking = true;
   try {
     if (manual) notify('正在檢查更新…');
-    const remote = await fetchRemoteVersion();
-    await registration.update();
+    await timeout(registration.update(), 12000, '更新伺服器暫時沒有回應');
 
     if (registration.waiting) {
-      activateWaitingWorker(registration.waiting);
+      activateWorker(registration.waiting);
       return;
     }
 
-    if (remote.version !== APP_VERSION) {
-      updateInProgress = true;
-      notify(`正在套用 v${remote.version}…`, 5000);
-      setTimeout(() => location.reload(), 900);
+    if (registration.installing) {
+      watchWorker(registration.installing);
+      setVersionText(`v${APP_VERSION} · 正在下載更新`);
+      if (manual) notify('發現新版，下載完成後會自動套用。');
       return;
     }
 
-    localStorage.setItem(VERSION_KEY, APP_VERSION);
-    setVersionText(`v${APP_VERSION} · 自動更新`);
-    if (manual) notify(`已是最新版 v${APP_VERSION}`);
+    setVersionText(`v${APP_VERSION} · 自動更新正常`);
+    if (manual) notify(`目前已是最新版 v${APP_VERSION}`);
   } catch (error) {
+    setVersionText(`v${APP_VERSION} · 離線可用`);
     if (manual) notify(error.message || '暫時無法檢查更新');
+  } finally {
+    checking = false;
   }
 }
 
-function watchInstallingWorker(worker) {
-  if (!worker) return;
-  worker.addEventListener('statechange', () => {
-    if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-      activateWaitingWorker(registration?.waiting || worker);
-    }
-  });
+async function repairLocalApp() {
+  const button = document.querySelector('#repairAppButton');
+  if (button) {
+    button.disabled = true;
+    button.textContent = '正在修復…';
+  }
+  notify('正在重建離線快取…', 5000);
+  try {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key.startsWith('sky-lens-pwa-')).map(key => caches.delete(key)));
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.filter(item => item.scope.includes('/sky-lens/')).map(item => item.unregister()));
+  } catch {}
+  location.replace(`./?repaired=${Date.now()}`);
 }
 
 async function initializeUpdates() {
   if (!('serviceWorker' in navigator)) {
-    setVersionText(`v${APP_VERSION} · 不支援自動更新`);
+    setVersionText(`v${APP_VERSION} · 不支援背景更新`);
     return;
   }
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (refreshing || !hadController) {
-      hadController = true;
-      return;
-    }
-    refreshing = true;
+    if (sessionStorage.getItem(RELOAD_GUARD) === '1') return;
     sessionStorage.setItem(RELOAD_GUARD, '1');
-    notify('更新完成，正在重新開啟最新版…', 5000);
-    setTimeout(() => location.reload(), 500);
-  });
-
-  navigator.serviceWorker.addEventListener('message', event => {
-    if (event.data?.type === 'SW_ACTIVATED') {
-      localStorage.setItem(VERSION_KEY, event.data.version || APP_VERSION);
-      setVersionText(`v${event.data.version || APP_VERSION} · 已更新`);
-    }
+    notify('更新完成，正在重新開啟…', 5000);
+    setTimeout(() => location.reload(), 450);
   });
 
   registration = await navigator.serviceWorker.register('./service-worker.js', {
@@ -108,21 +116,12 @@ async function initializeUpdates() {
     updateViaCache: 'none',
   });
 
-  registration.addEventListener('updatefound', () => {
-    watchInstallingWorker(registration.installing);
-  });
+  registration.addEventListener('updatefound', () => watchWorker(registration.installing));
+  if (registration.waiting) activateWorker(registration.waiting);
 
-  if (registration.waiting) activateWaitingWorker(registration.waiting);
-
-  const justReloaded = sessionStorage.getItem(RELOAD_GUARD) === '1';
-  if (justReloaded) {
-    sessionStorage.removeItem(RELOAD_GUARD);
-    localStorage.setItem(VERSION_KEY, APP_VERSION);
-    notify(`已更新至 v${APP_VERSION}`);
-  }
-
-  setVersionText(`v${APP_VERSION} · 自動更新`);
-  await checkForUpdate();
+  setTimeout(() => sessionStorage.removeItem(RELOAD_GUARD), 5000);
+  setVersionText(`v${APP_VERSION} · 自動更新正常`);
+  setTimeout(() => checkForUpdate(), 1200);
   setInterval(() => checkForUpdate(), CHECK_INTERVAL_MS);
 }
 
@@ -132,10 +131,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') checkForUpdate();
 });
 
-document.querySelector('#checkUpdateButton')?.addEventListener('click', () => {
-  checkForUpdate({ manual: true });
-});
+document.querySelector('#checkUpdateButton')?.addEventListener('click', () => checkForUpdate({ manual: true }));
+document.querySelector('#repairAppButton')?.addEventListener('click', repairLocalApp);
 
-initializeUpdates().catch(() => {
-  setVersionText(`v${APP_VERSION} · 稍後重試`);
-});
+initializeUpdates().catch(() => setVersionText(`v${APP_VERSION} · 離線可用`));
