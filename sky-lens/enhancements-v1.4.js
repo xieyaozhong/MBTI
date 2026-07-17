@@ -112,12 +112,9 @@ function loadObserver() {
     const saved = JSON.parse(localStorage.getItem('sky-lens-position') || 'null');
     if (saved?.latitudeDeg != null) state.observer = saved;
   } catch {}
-  navigator.geolocation?.getCurrentPosition(position => {
-    state.observer = { latitudeDeg:position.coords.latitude, longitudeDeg:position.coords.longitude };
-  }, () => {}, { maximumAge:120000, timeout:8000 });
 }
 loadObserver();
-setInterval(loadObserver, 120000);
+setInterval(loadObserver, 1000);
 
 function drawGlow(x, y, name) {
   ctx.save();
@@ -173,7 +170,8 @@ function render() {
       if (Math.abs(azDiff) < 55) below.push({item,horizontal,azDiff});
       continue;
     }
-    const point = projectWorldToScreen(world,basis.right,basis.up,basis.forward,width,height,55);
+    const fov = Number($('#fovRange')?.value || 55);
+    const point = projectWorldToScreen(world,basis.right,basis.up,basis.forward,width,height,fov);
     if (point && point.depth>.12 && point.x>24 && point.x<width-70 && point.y>105 && point.y<height-100) {
       drawGlow(point.x,point.y,item.name);
     }
