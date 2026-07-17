@@ -1,4 +1,4 @@
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.6.1';
 const CHECK_INTERVAL_MS = 10 * 60 * 1000;
 const RELOAD_GUARD = 'sky-lens-controller-reload';
 
