@@ -1,4 +1,4 @@
-const VERSION = '1.6.0';
+const VERSION = '1.6.1';
 const CACHE = `sky-lens-pwa-v${VERSION}`;
 const INDEX_URL = './index.html';
 const ASSETS = [
