@@ -1,11 +1,12 @@
-const VERSION = '1.5.0';
-const CACHE = 'sky-lens-pwa-v1.5.0-hotfix1';
+const VERSION = '1.6.0';
+const CACHE = `sky-lens-pwa-v${VERSION}`;
 const INDEX_URL = './index.html';
 const ASSETS = [
   './', INDEX_URL,
-  './styles-v1.3.css', './app-v1.3.js',
-  './enhancements-v1.4.css', './enhancements-v1.4.js',
-  './update-manager.js', './version.json', './manifest.webmanifest', './icon.svg',
+  './performance-preload-v1.6.js',
+  './styles-v1.3.css', './enhancements-v1.4.css', './performance-v1.6.css',
+  './app-v1.3.js', './features-v1.6.js', './update-manager.js',
+  './version.json', './manifest.webmanifest', './icon.svg', './recovery.html',
   './src/astronomy.js', './src/catalog.js', './src/simbad.js',
   './src/constellations.js', './src/solar-system.js',
 ];
@@ -73,7 +74,6 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-
   if (request.mode === 'navigate') {
     event.respondWith(navigationResponse(request));
     return;
