@@ -1,11 +1,11 @@
-const VERSION = '1.7.0';
+const VERSION = '1.8.0';
 const CACHE = `sky-lens-pwa-v${VERSION}`;
 const INDEX_URL = './index.html';
 const ASSETS = [
   './', INDEX_URL,
   './performance-preload-v1.6.js',
   './styles-v1.3.css', './enhancements-v1.4.css', './performance-v1.6.css',
-  './app-v1.3.js', './features-v1.7.js', './update-manager.js',
+  './app-v1.3.js', './features-v1.7.js', './navigation-auto-close-v1.8.js', './update-manager.js',
   './version.json', './manifest.webmanifest', './icon.svg', './recovery.html',
   './src/astronomy.js', './src/catalog.js', './src/simbad.js',
   './src/constellations.js', './src/solar-system.js',
