@@ -28,6 +28,7 @@ const ctx = overlay.getContext('2d', { alpha: true });
 const state = {
   dpr: 1,
   orientation: null,
+  orientationDirty: false,
   basis: null,
   observer: null,
   lastDrawAt: 0,
@@ -100,7 +101,7 @@ function onOrientation(event) {
     beta: old ? old.beta + (event.beta - old.beta) * .22 : event.beta,
     gamma: old ? old.gamma + (event.gamma - old.gamma) * .22 : event.gamma,
   };
-  updateBasis();
+  state.orientationDirty = true;
 }
 
 function drawGlow(x, y, name) {
@@ -141,6 +142,10 @@ function renderZodiac(timestamp) {
   state.lastDrawAt = timestamp;
   clear();
   loadObserver();
+  if (state.orientationDirty || !state.basis) {
+    updateBasis();
+    state.orientationDirty = false;
+  }
   const basis = state.basis;
   const observer = state.observer;
   const constellationButton = $('[data-toggle="constellations"]');
@@ -242,12 +247,18 @@ function updateNavigationFeatures() {
 }
 
 window.addEventListener('resize', resize, { passive:true });
-window.addEventListener('orientationchange', () => setTimeout(resize, 180), { passive:true });
+window.addEventListener('orientationchange', () => setTimeout(() => {
+  resize();
+  state.orientationDirty = true;
+}, 180), { passive:true });
 window.addEventListener('deviceorientationabsolute', onOrientation, { capture:true, passive:true });
 window.addEventListener('deviceorientation', onOrientation, { capture:true, passive:true });
 document.addEventListener('visibilitychange', () => {
   state.hidden = document.visibilityState !== 'visible';
-  if (!state.hidden) loadObserver();
+  if (!state.hidden) {
+    loadObserver();
+    state.orientationDirty = true;
+  }
 });
 resize();
 loadObserver();
