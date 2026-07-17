@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
-  "releasedAt": "2026-07-17T00:00:00+08:00",
-  "notes": "加入已安裝 PWA 的自動更新、前景檢查與立即套用機制。"
+  "version": "1.6.0",
+  "releasedAt": "2026-07-17T02:45:00+08:00",
+  "notes": "移除重複 60 FPS 動畫與全頁 MutationObserver，限制星圖 30 FPS、黃道特效 10 FPS，並將相機降為 720p。"
 }
