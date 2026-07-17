@@ -198,6 +198,15 @@ function updateNavigationEnhancements() {
   const hint = $('#navigationHint');
   const marker = $('#targetMarker');
   if (!hud || !arrow || !hint || !marker) return;
+  if (hud.classList.contains('hidden')) {
+    clearTimeout(state.arrivalTimer);
+    state.arrivalTimer = null;
+    state.arrivedName = '';
+    marker.dataset.label = '';
+    marker.classList.remove('below-horizon','zodiac','arrived');
+    marker.classList.add('hidden');
+    return;
+  }
   const name = targetName();
   const zodiac = ZODIAC_NAMES.has(name);
   const belowMatch = hint.textContent.match(/地平線下\s*(\d+)°/);
@@ -221,7 +230,7 @@ function updateNavigationEnhancements() {
     marker.dataset.label = '';
   }
 
-  const arrived = arrow.classList.contains('arrived') && !below && !hud.classList.contains('hidden');
+  const arrived = arrow.classList.contains('arrived') && !below;
   if (arrived) {
     if (!state.arrivalTimer || state.arrivedName !== name) {
       clearTimeout(state.arrivalTimer);
